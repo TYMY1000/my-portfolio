@@ -289,14 +289,18 @@ function endDialogue() {
 }
 
 function createMobileControls() {
-  const buttonSize = 100 * 0.3;
+  const buttonSize = 100 * 0.3; // 30% of original
   const padding = 20;
-  const y = config.height - buttonSize - padding;
+  const y = this.scale.height - buttonSize - padding;
 
   const leftBtn = this.add.rectangle(padding, y, buttonSize, buttonSize, 0x6666ff)
-    .setOrigin(0, 0).setScrollFactor(0).setInteractive().setDepth(20);
+    .setOrigin(0, 0)
+    .setScrollFactor(0)
+    .setInteractive()
+    .setDepth(20);
   this.add.text(padding + buttonSize * 0.25, y + buttonSize * 0.25, "<", {
-    fontSize: `${buttonSize * 0.5}px`, color: "#fff"
+    fontSize: `${buttonSize * 0.5}px`,
+    color: "#fff"
   }).setScrollFactor(0).setDepth(21);
 
   leftBtn.on("pointerdown", () => leftPressed = true);
@@ -304,9 +308,13 @@ function createMobileControls() {
   leftBtn.on("pointerout", () => leftPressed = false);
 
   const rightBtn = this.add.rectangle(padding + buttonSize + 20, y, buttonSize, buttonSize, 0x6666ff)
-    .setOrigin(0, 0).setScrollFactor(0).setInteractive().setDepth(20);
+    .setOrigin(0, 0)
+    .setScrollFactor(0)
+    .setInteractive()
+    .setDepth(20);
   this.add.text(padding + buttonSize + 20 + buttonSize * 0.25, y + buttonSize * 0.25, ">", {
-    fontSize: `${buttonSize * 0.5}px`, color: "#fff"
+    fontSize: `${buttonSize * 0.5}px`,
+    color: "#fff"
   }).setScrollFactor(0).setDepth(21);
 
   rightBtn.on("pointerdown", () => rightPressed = true);
@@ -314,9 +322,13 @@ function createMobileControls() {
   rightBtn.on("pointerout", () => rightPressed = false);
 
   const jumpBtn = this.add.rectangle(this.scale.width - buttonSize - padding, y, buttonSize, buttonSize, 0xff6666)
-    .setOrigin(0, 0).setScrollFactor(0).setInteractive().setDepth(20);
+    .setOrigin(0, 0)
+    .setScrollFactor(0)
+    .setInteractive()
+    .setDepth(20);
   this.add.text(this.scale.width - buttonSize - padding + buttonSize * 0.25, y + buttonSize * 0.25, "↑", {
-    fontSize: `${buttonSize * 0.5}px`, color: "#fff"
+    fontSize: `${buttonSize * 0.5}px`,
+    color: "#fff"
   }).setScrollFactor(0).setDepth(21);
 
   jumpBtn.on("pointerdown", () => jumpPressed = true);
