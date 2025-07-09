@@ -33,6 +33,9 @@ let playerState = "idle";
 let justJumped = false;
 let spaceKey;
 
+let isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
+let leftPressed = false, rightPressed = false, jumpPressed = false;
+
 let cardTexts = [
   " Web Developer",
   " Python Enthusiast",
@@ -47,9 +50,6 @@ let isTyping = false;
 let fullText = '';
 let currentChar = 0;
 let dialogueActive = true;
-
-let isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
-let leftPressed = false, rightPressed = false, jumpPressed = false;
 
 const dialogueLines = [
   "Hey there! I’m Rotimi Awomolo — a Computer Science graduate with a passion for turning ideas into code.",
@@ -97,7 +97,7 @@ function create() {
     .setCollideWorldBounds(true)
     .setScale(2);
 
-  this.anims.create({ key: "walk", frames: Array.from({length: 8}, (_, i) => ({ key: `walk${i+1}` })), frameRate: 16, repeat: -1 });
+  this.anims.create({ key: "walk", frames: Array.from({ length: 8 }, (_, i) => ({ key: `walk${i + 1}` })), frameRate: 16, repeat: -1 });
   this.anims.create({ key: "idle", frames: [{ key: "idle1" }, { key: "idle2" }], frameRate: 2, repeat: -1 });
   this.anims.create({ key: "jump", frames: [{ key: "jump1" }, { key: "jump2" }, { key: "jump3" }], frameRate: 8, repeat: 0 });
 
@@ -111,7 +111,9 @@ function create() {
     let x = 600 + i * 800;
     let y = this.scale.height - cardYOffset;
     let skillCard = this.add.image(x, y, "card").setScale(0.8).setVisible(false).setDepth(1);
-    let text = this.add.text(x, y, cardTexts[i], { fontFamily: "monospace", fontSize: "18px", color: "#ffffff", align: "center" }).setOrigin(0.5).setVisible(false).setDepth(2);
+    let text = this.add.text(x, y, cardTexts[i], {
+      fontFamily: "monospace", fontSize: "18px", color: "#ffffff", align: "center"
+    }).setOrigin(0.5).setVisible(false).setDepth(2);
     let questionCard = questionCards.create(x, y, "question-card").setScale(0.24).refreshBody();
     questionCard.skillCard = skillCard;
     questionCard.skillText = text;
@@ -124,9 +126,7 @@ function create() {
 
   if (!isMobile) {
     instructions = this.add.text(this.scale.width / 2, 50, "Use arrow keys to move and jump", {
-      fontFamily: "monospace",
-      fontSize: "24px",
-      color: "#ffffff"
+      fontFamily: "monospace", fontSize: "24px", color: "#ffffff"
     }).setOrigin(0.5).setScrollFactor(0);
   }
 
@@ -196,8 +196,8 @@ function hitQuestionCard(player, questionCard) {
     questionCard.disableBody(true, true);
     this.tweens.add({ targets: [card, text], y: "-=10", duration: 100, ease: "Power1", yoyo: true });
     card.setInteractive({ useHandCursor: true });
-    card.on("pointerover", () => this.tweens.add({ targets: hoverImage, alpha: 1, duration: 200, ease: "Power1" }));
-    card.on("pointerout", () => this.tweens.add({ targets: hoverImage, alpha: 0, duration: 200, ease: "Power1" }));
+    card.on("pointerover", () => this.tweens.add({ targets: hoverImage, alpha: 1, duration: 200 }));
+    card.on("pointerout", () => this.tweens.add({ targets: hoverImage, alpha: 0, duration: 200 }));
     revealedCards++;
     if (revealedCards >= totalCards) showModal();
   }
@@ -218,13 +218,18 @@ function showDialogue() {
   dialogueBg.lineStyle(4, 0xffffff, 1);
   dialogueBg.strokeRect(boxX, boxY, boxWidth, boxHeight);
   portrait = this.add.image(100, boxY + 20, "rotimiPortrait").setOrigin(0, 0).setScale(2).setScrollFactor(0).setDepth(11);
-  nameText = this.add.text(240, boxY + 10, "Rotimi Awomolo", { fontFamily: "Press Start 2P", fontSize: "25px", color: "#ffffff" }).setScrollFactor(0).setDepth(11);
-  dialogueText = this.add.text(240, boxY + 60, "", { fontFamily: "Press Start 2P", fontSize: "25px", color: "#ffffff", wordWrap: { width: this.scale.width - 300 } }).setScrollFactor(0).setDepth(11);
-  pressSpaceText = this.add.text(this.scale.width - 260, boxY + boxHeight - 40, ">> PRESS SPACE", { fontFamily: "Press Start 2P", fontSize: "20px", color: "#ffffff" }).setScrollFactor(0).setDepth(11).setAlpha(0);
+  nameText = this.add.text(240, boxY + 10, "Rotimi Awomolo", {
+    fontFamily: "Press Start 2P", fontSize: "25px", color: "#ffffff"
+  }).setScrollFactor(0).setDepth(11);
+  dialogueText = this.add.text(240, boxY + 60, "", {
+    fontFamily: "Press Start 2P", fontSize: "25px", color: "#ffffff", wordWrap: { width: this.scale.width - 300 }
+  }).setScrollFactor(0).setDepth(11);
+  pressSpaceText = this.add.text(this.scale.width - 260, boxY + boxHeight - 40, ">> PRESS SPACE", {
+    fontFamily: "Press Start 2P", fontSize: "20px", color: "#ffffff"
+  }).setScrollFactor(0).setDepth(11).setAlpha(0);
+
   spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
   this.input.keyboard.on("keydown-SPACE", () => {
-  if (isMobile) {
-  this.input.on("pointerdown", () => {
     if (!dialogueActive) return;
     if (isTyping) {
       isTyping = false;
@@ -234,17 +239,20 @@ function showDialogue() {
       showNextLine.call(this);
     }
   });
-}
 
-    if (!dialogueActive) return;
-    if (isTyping) {
-      isTyping = false;
-      dialogueText.setText(fullText);
-      pressSpaceText.setAlpha(1);
-    } else {
-      showNextLine.call(this);
-    }
-  });
+  if (isMobile) {
+    this.input.on("pointerdown", () => {
+      if (!dialogueActive) return;
+      if (isTyping) {
+        isTyping = false;
+        dialogueText.setText(fullText);
+        pressSpaceText.setAlpha(1);
+      } else {
+        showNextLine.call(this);
+      }
+    });
+  }
+
   showNextLine.call(this);
 }
 
@@ -281,18 +289,14 @@ function endDialogue() {
 }
 
 function createMobileControls() {
-  const buttonSize = 100 * 0.3; // 30% of original
+  const buttonSize = 100 * 0.3;
   const padding = 20;
-  const y = this.scale.height - buttonSize - padding;
+  const y = config.height - buttonSize - padding;
 
   const leftBtn = this.add.rectangle(padding, y, buttonSize, buttonSize, 0x6666ff)
-    .setOrigin(0, 0)
-    .setScrollFactor(0)
-    .setInteractive()
-    .setDepth(20);
+    .setOrigin(0, 0).setScrollFactor(0).setInteractive().setDepth(20);
   this.add.text(padding + buttonSize * 0.25, y + buttonSize * 0.25, "<", {
-    fontSize: `${buttonSize * 0.5}px`,
-    color: "#fff"
+    fontSize: `${buttonSize * 0.5}px`, color: "#fff"
   }).setScrollFactor(0).setDepth(21);
 
   leftBtn.on("pointerdown", () => leftPressed = true);
@@ -300,13 +304,9 @@ function createMobileControls() {
   leftBtn.on("pointerout", () => leftPressed = false);
 
   const rightBtn = this.add.rectangle(padding + buttonSize + 20, y, buttonSize, buttonSize, 0x6666ff)
-    .setOrigin(0, 0)
-    .setScrollFactor(0)
-    .setInteractive()
-    .setDepth(20);
+    .setOrigin(0, 0).setScrollFactor(0).setInteractive().setDepth(20);
   this.add.text(padding + buttonSize + 20 + buttonSize * 0.25, y + buttonSize * 0.25, ">", {
-    fontSize: `${buttonSize * 0.5}px`,
-    color: "#fff"
+    fontSize: `${buttonSize * 0.5}px`, color: "#fff"
   }).setScrollFactor(0).setDepth(21);
 
   rightBtn.on("pointerdown", () => rightPressed = true);
@@ -314,13 +314,9 @@ function createMobileControls() {
   rightBtn.on("pointerout", () => rightPressed = false);
 
   const jumpBtn = this.add.rectangle(this.scale.width - buttonSize - padding, y, buttonSize, buttonSize, 0xff6666)
-    .setOrigin(0, 0)
-    .setScrollFactor(0)
-    .setInteractive()
-    .setDepth(20);
+    .setOrigin(0, 0).setScrollFactor(0).setInteractive().setDepth(20);
   this.add.text(this.scale.width - buttonSize - padding + buttonSize * 0.25, y + buttonSize * 0.25, "↑", {
-    fontSize: `${buttonSize * 0.5}px`,
-    color: "#fff"
+    fontSize: `${buttonSize * 0.5}px`, color: "#fff"
   }).setScrollFactor(0).setDepth(21);
 
   jumpBtn.on("pointerdown", () => jumpPressed = true);
