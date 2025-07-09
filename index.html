@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Pixel Portfolio</title>
+    <link rel="icon" href="favicon.ico" />
+
+    <!-- Optional Pixel Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #contact-modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            text-align: center;
+        }
+
+        #contact-modal h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        #contact-modal p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+
+        #contact-modal a {
+            color: #4CAF50;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 1.1em;
+        }
+
+        #contact-modal a:hover {
+            text-decoration: underline;
+        }
+
+        #close-modal {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #close-modal:hover,
+        #close-modal:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+  </head>
+
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+    <script src="game.js"></script>
+
+    <!-- Contact Modal -->
+    <div id="contact-modal">
+      <span id="close-modal" onclick="hideModal()">&times;</span>
+      <h2>Contact Me</h2>
+      <p>I'd love to hear from you!</p>
+      <div>
+        <a href="https://github.com" target="_blank">GiitHub</a>
+        <a href="https://linkedin.com" target="_blank">LinkedIn</a>
+        <a href="mailto:youremail@example.com">Email</a>
+      </div>
+    </div>
+
+    <script>
+      const modal = document.getElementById('contact-modal');
+      function showModal() {
+        modal.style.display = 'flex';
+      }
+      function hideModal() {
+        modal.style.display = 'none';
+      }
+    </script>
+  </body>
+</html>
