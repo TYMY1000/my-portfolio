@@ -223,6 +223,19 @@ function showDialogue() {
   pressSpaceText = this.add.text(this.scale.width - 260, boxY + boxHeight - 40, ">> PRESS SPACE", { fontFamily: "Press Start 2P", fontSize: "20px", color: "#ffffff" }).setScrollFactor(0).setDepth(11).setAlpha(0);
   spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
   this.input.keyboard.on("keydown-SPACE", () => {
+  if (isMobile) {
+  this.input.on("pointerdown", () => {
+    if (!dialogueActive) return;
+    if (isTyping) {
+      isTyping = false;
+      dialogueText.setText(fullText);
+      pressSpaceText.setAlpha(1);
+    } else {
+      showNextLine.call(this);
+    }
+  });
+}
+
     if (!dialogueActive) return;
     if (isTyping) {
       isTyping = false;
@@ -268,7 +281,7 @@ function endDialogue() {
 }
 
 function createMobileControls() {
-  const buttonSize = 100;
+  const buttonSize = 100 * 0.3; // 30% of original
   const padding = 20;
   const y = this.scale.height - buttonSize - padding;
 
@@ -277,7 +290,10 @@ function createMobileControls() {
     .setScrollFactor(0)
     .setInteractive()
     .setDepth(20);
-  this.add.text(padding + 25, y + 25, "<", { fontSize: "40px", color: "#fff" }).setScrollFactor(0).setDepth(21);
+  this.add.text(padding + buttonSize * 0.25, y + buttonSize * 0.25, "<", {
+    fontSize: `${buttonSize * 0.5}px`,
+    color: "#fff"
+  }).setScrollFactor(0).setDepth(21);
 
   leftBtn.on("pointerdown", () => leftPressed = true);
   leftBtn.on("pointerup", () => leftPressed = false);
@@ -288,7 +304,10 @@ function createMobileControls() {
     .setScrollFactor(0)
     .setInteractive()
     .setDepth(20);
-  this.add.text(padding + buttonSize + 45, y + 25, ">", { fontSize: "40px", color: "#fff" }).setScrollFactor(0).setDepth(21);
+  this.add.text(padding + buttonSize + 20 + buttonSize * 0.25, y + buttonSize * 0.25, ">", {
+    fontSize: `${buttonSize * 0.5}px`,
+    color: "#fff"
+  }).setScrollFactor(0).setDepth(21);
 
   rightBtn.on("pointerdown", () => rightPressed = true);
   rightBtn.on("pointerup", () => rightPressed = false);
@@ -299,7 +318,10 @@ function createMobileControls() {
     .setScrollFactor(0)
     .setInteractive()
     .setDepth(20);
-  this.add.text(this.scale.width - buttonSize - padding + 10, y + 25, "↑", { fontSize: "40px", color: "#fff" }).setScrollFactor(0).setDepth(21);
+  this.add.text(this.scale.width - buttonSize - padding + buttonSize * 0.25, y + buttonSize * 0.25, "↑", {
+    fontSize: `${buttonSize * 0.5}px`,
+    color: "#fff"
+  }).setScrollFactor(0).setDepth(21);
 
   jumpBtn.on("pointerdown", () => jumpPressed = true);
   jumpBtn.on("pointerup", () => jumpPressed = false);
