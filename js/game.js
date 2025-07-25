@@ -23,8 +23,8 @@ let isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgen
 let player, cursors, questionCards, skillCards, instructions;
 let revealedCards = 0;
 let totalCards = 5;
-let cardYOffset = 350;
-let groundYOffset = isMobile ? 100 : 115;
+let cardYOffset = isMobile ? 310 : 350;
+let groundYOffset = isMobile ? 90 : 115;
 let worldWidth;
 let lastDirection = "right";
 let playerState = "idle";
