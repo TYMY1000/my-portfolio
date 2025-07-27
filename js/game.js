@@ -89,24 +89,23 @@ function preload() {
 function create() {
   this.physics.world.setBounds(0, 0, worldWidth, this.scale.height);
 
-  // Background
-// Add background image and scale it to fit screen height
+// Background
 const bg = this.add.image(0, 0, "background").setOrigin(0, 0);
 const scale = this.scale.height / bg.height;
 bg.setScale(scale);
-
-// Calculate scaled background width
 worldWidth = bg.width * scale;
 
-// Set physics and camera bounds to match background width
+// Set physics and camera bounds
 this.physics.world.setBounds(0, 0, worldWidth, this.scale.height);
 this.cameras.main.setBounds(0, 0, worldWidth, this.scale.height);
 
-
-  // Ground
-  const platforms = this.physics.add.staticGroup();
-  const groundY = this.scale.height - groundYOffset;
-  platforms.create(worldWidth / 2, groundY, "ground").setDisplaySize(worldWidth, 20).setVisible(false).refreshBody();
+// Ground (aligned with background)
+const platforms = this.physics.add.staticGroup();
+const groundY = bg.y + (bg.height * bg.scaleY) - 20;
+platforms.create(worldWidth / 2, groundY, "ground")
+  .setDisplaySize(worldWidth, 20)
+  .setVisible(false)
+  .refreshBody();
 
   // Player
   player = this.physics.add.sprite(100, groundY - 100, "jump1")
