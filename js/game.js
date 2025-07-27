@@ -23,7 +23,7 @@ let isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgen
 let player, cursors, questionCards, skillCards, instructions;
 let revealedCards = 0;
 let totalCards = 5;
-let cardYOffset = 350;
+let cardYOffset = isMobile ? 300 : 350;
 let groundYOffset = 250;
 let worldWidth;
 let lastDirection = "right";
@@ -103,7 +103,7 @@ this.cameras.main.setBounds(0, 0, worldWidth, this.scale.height);
 const platforms = this.physics.add.staticGroup();
 const groundY = bg.y + (bg.height * bg.scaleY) - 20;
 platforms.create(worldWidth / 2, groundY, "ground")
-  .setDisplaySize(worldWidth, 100)
+  .setDisplaySize(worldWidth, 115)
   .setVisible(false)
   .refreshBody();
 
