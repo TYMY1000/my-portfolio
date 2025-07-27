@@ -24,7 +24,7 @@ let player, cursors, questionCards, skillCards, instructions;
 let revealedCards = 0;
 let totalCards = 5;
 let cardYOffset = 350;
-let groundYOffset = 115;
+let groundYOffset = 250;
 let worldWidth;
 let lastDirection = "right";
 let playerState = "idle";
