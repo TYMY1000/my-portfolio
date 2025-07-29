@@ -24,7 +24,7 @@ let player, cursors, questionCards, skillCards, instructions;
 let revealedCards = 0;
 let totalCards = 5;
 let cardYOffset = isMobile ? 300 : 350;
-let groundYOffset = 250;
+let groundYOffset = 350;
 let worldWidth;
 let lastDirection = "right";
 let playerState = "idle";
@@ -87,31 +87,35 @@ function preload() {
 }
 
 function create() {
+  // Background
+  const bg = this.add.image(0, 0, "background").setOrigin(0, 0);
+  const scale = this.scale.height / bg.height;
+  bg.setScale(scale);
+  worldWidth = bg.width * scale; // Set the global worldWidth
+
+  // Set physics and camera bounds
   this.physics.world.setBounds(0, 0, worldWidth, this.scale.height);
+  this.cameras.main.setBounds(0, 0, worldWidth, this.scale.height);
 
-// Background
-const bg = this.add.image(0, 0, "background").setOrigin(0, 0);
-const scale = this.scale.height / bg.height;
-bg.setScale(scale);
-worldWidth = bg.width * scale;
+  // Create static platform group
+  const platforms = this.physics.add.staticGroup();
 
-// Set physics and camera bounds
-this.physics.world.setBounds(0, 0, worldWidth, this.scale.height);
-this.cameras.main.setBounds(0, 0, worldWidth, this.scale.height);
+  // Align the invisible ground with bottom of background image
+  const groundY = bg.y + bg.height * scale - 100;
 
-// Ground (aligned with background)
-const platforms = this.physics.add.staticGroup();
-const groundY = bg.y + (bg.height * bg.scaleY) - 20;
-platforms.create(worldWidth / 2, groundY, "ground")
-  .setDisplaySize(worldWidth, 115)
-  .setVisible(false)
-  .refreshBody();
+  // Stretch one long invisible platform across the level
+  platforms.create(worldWidth / 2, groundY, "ground")
+    .setOrigin(0.5, 0.5)
+    .setDisplaySize(worldWidth, 50)
+    .setVisible(false)
+    .refreshBody();
 
   // Player
-  player = this.physics.add.sprite(100, groundY - 100, "jump1")
+  player = this.physics.add.sprite(100, groundY - 100, "jump1") // Start player above the ground
+    .setOrigin(0.5, 1)     // Anchor the player's feet
     .setBounce(0)
     .setCollideWorldBounds(true)
-    .setScale(2);
+    .setScale(2);          // Player is 22x48, so height is now 96px
 
   this.anims.create({
     key: "walk",
