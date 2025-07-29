@@ -108,7 +108,7 @@ platforms.create(worldWidth / 2, groundY, "ground")
   .refreshBody();
 
   // Player
-  player = this.physics.add.sprite(100, 100, "jump1"
+  player = this.physics.add.sprite(100, 100, "jump1")
     .setBounce(0)
     .setCollideWorldBounds(true)
     .setScale(2);
