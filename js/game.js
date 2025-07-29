@@ -228,38 +228,32 @@ function update() {
     this.sound.play("jump");
   }
 
-  // --- MOVEMENT & ANIMATION STATE MACHINE ---
+  // --- MOVEMENT & ANIMATION LOGIC ---
   if (cursors.left.isDown || leftPressed) {
     player.setVelocityX(-160);
     player.setFlipX(true);
     lastDirection = "left";
-    if (grounded && playerState !== "walk") {
+    if (grounded) {
       player.anims.play("walk", true);
-      playerState = "walk";
     }
   } else if (cursors.right.isDown || rightPressed) {
     player.setVelocityX(160);
     player.setFlipX(false);
     lastDirection = "right";
-    if (grounded && playerState !== "walk") {
+    if (grounded) {
       player.anims.play("walk", true);
-      playerState = "walk";
     }
   } else {
     player.setVelocityX(0);
-    if (grounded && playerState !== "idle") {
+    if (grounded) {
       player.anims.play("idle", true);
-      playerState = "idle";
       player.setFlipX(lastDirection === "left");
     }
   }
 
   // --- JUMP ANIMATION ---
   if (!grounded) {
-    if (playerState !== "jump") {
-      player.anims.play("jump", true);
-      playerState = "jump";
-    }
+    player.anims.play("jump", true);
   }
 
   // --- CLOUD MOVEMENT ---
