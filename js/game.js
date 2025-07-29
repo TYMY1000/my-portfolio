@@ -328,37 +328,37 @@ function showDialogue() {
     color: "#ffffff",
   }).setScrollFactor(0).setDepth(11).setAlpha(0);
 
-  spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-
-  this.input.keyboard.on("keydown-SPACE", () => {
+  const advanceDialogue = () => {
     if (!dialogueActive) return;
     if (isTyping) {
       isTyping = false;
       dialogueText.setText(fullText);
+      if (pressSpaceTween) pressSpaceTween.stop();
       pressSpaceText.setAlpha(1);
+      pressSpaceTween = this.tweens.add({ targets: pressSpaceText, alpha: { from: 1, to: 0 }, duration: 500, repeat: -1, yoyo: true });
     } else {
       showNextLine.call(this);
     }
-  });
+  };
 
+  this.input.keyboard.on("keydown-SPACE", advanceDialogue);
   if (isMobile) {
-    this.input.on("pointerdown", () => {
-      if (!dialogueActive) return;
-      if (isTyping) {
-        isTyping = false;
-        dialogueText.setText(fullText);
-        pressSpaceText.setAlpha(1);
-      } else {
-        showNextLine.call(this);
-      }
-    });
+    this.input.on("pointerdown", advanceDialogue);
   }
 
   showNextLine.call(this);
 }
 
 function showNextLine() {
-  if (dialogueIndex >= dialogueLines.length) return endDialogue.call(this);
+  if (pressSpaceTween) {
+    pressSpaceTween.stop();
+    pressSpaceTween = null;
+  }
+
+  if (dialogueIndex >= dialogueLines.length) {
+    return endDialogue.call(this);
+  }
+
   fullText = dialogueLines[dialogueIndex];
   dialogueText.setText("");
   currentChar = 0;
@@ -377,7 +377,7 @@ function typeLine() {
   } else {
     isTyping = false;
     pressSpaceText.setAlpha(1);
-    this.tweens.add({ targets: pressSpaceText, alpha: { from: 1, to: 0 }, duration: 500, repeat: -1, yoyo: true });
+    pressSpaceTween = this.tweens.add({ targets: pressSpaceText, alpha: { from: 1, to: 0 }, duration: 500, repeat: -1, yoyo: true });
   }
 }
 
