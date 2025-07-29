@@ -100,12 +100,34 @@ this.physics.world.setBounds(0, 0, worldWidth, this.scale.height);
 this.cameras.main.setBounds(0, 0, worldWidth, this.scale.height);
 
 // Ground (aligned with background)
-const platforms = this.physics.add.staticGroup();
-const groundY = bg.y + (bg.height * bg.scaleY) - 20;
-platforms.create(worldWidth / 2, groundY, "ground")
-  .setDisplaySize(worldWidth, 150)
+// Ground visual (tileSprite)
+const groundTexture = this.textures.get('ground');
+const originalWidth = groundTexture.getSourceImage().width;
+const originalHeight = groundTexture.getSourceImage().height;
+
+const zoomFactor = 2.5;
+const tileWidth = originalWidth * zoomFactor;
+const tileHeight = originalHeight * zoomFactor;
+
+// Calculate position just above bottom of background
+const groundY = bg.y + (bg.height * bg.scaleY) - tileHeight;
+
+// 💡 Add visual ground: tile horizontally but scaled like a zoom
+const ground = this.add.tileSprite(0, groundY, worldWidth, tileHeight, 'ground')
+  .setOrigin(0, 0)
+  .setScrollFactor(1)
+  .setDepth(1)
+  .setTileScale(zoomFactor, zoomFactor); // THIS zooms each tile without stretching the area
+
+// ✅ Physics ground
+const groundBody = this.physics.add.staticImage(worldWidth / 2, groundY + tileHeight / 2, null)
+  .setDisplaySize(worldWidth, tileHeight)
   .setVisible(false)
   .refreshBody();
+
+const platforms = this.physics.add.staticGroup();
+platforms.add(groundBody);
+
 
   // Player
   player = this.physics.add.sprite(100, 100, "jump1")
