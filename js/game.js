@@ -222,55 +222,54 @@ function update() {
 
   const grounded = player.body.blocked.down;
 
-  if ((cursors.up.isDown || jumpPressed) && grounded && !justJumped) {
-    justJumped = true;
-    player.setTexture("jump1");
-    player.anims.play("jump", true);
-    playerState = "jump";
+  // --- JUMP LOGIC ---
+  if ((cursors.up.isDown || jumpPressed) && grounded) {
     player.setVelocityY(-400);
     this.sound.play("jump");
   }
 
-  if (!cursors.up.isDown && !jumpPressed) justJumped = false;
-
+  // --- MOVEMENT & ANIMATION STATE MACHINE ---
   if (cursors.left.isDown || leftPressed) {
     player.setVelocityX(-160);
-    if (playerState !== "jump") {
-      playerState = "walk";
-      player.anims.play("walk", true);
-    }
     player.setFlipX(true);
     lastDirection = "left";
+    if (grounded && playerState !== "walk") {
+      player.anims.play("walk", true);
+      playerState = "walk";
+    }
   } else if (cursors.right.isDown || rightPressed) {
     player.setVelocityX(160);
-    if (playerState !== "jump") {
-      playerState = "walk";
-      player.anims.play("walk", true);
-    }
     player.setFlipX(false);
     lastDirection = "right";
+    if (grounded && playerState !== "walk") {
+      player.anims.play("walk", true);
+      playerState = "walk";
+    }
   } else {
     player.setVelocityX(0);
-    if (playerState !== "jump") {
-      playerState = "idle";
+    if (grounded && playerState !== "idle") {
       player.anims.play("idle", true);
+      playerState = "idle";
       player.setFlipX(lastDirection === "left");
     }
   }
 
-  if (playerState === "jump" && grounded && !player.anims.isPlaying) {
-    playerState = "idle";
-    player.anims.play("idle", true);
-    player.setFlipX(lastDirection === "left");
+  // --- JUMP ANIMATION ---
+  if (!grounded) {
+    if (playerState !== "jump") {
+      player.anims.play("jump", true);
+      playerState = "jump";
+    }
   }
-  cloudGroup.getChildren().forEach(cloud => {
-  cloud.x += cloud.speed;
-  if (cloud.x > worldWidth + 100) {
-    cloud.x = -100;
-    cloud.y = Phaser.Math.Between(50, 400);
-  }
-});
 
+  // --- CLOUD MOVEMENT ---
+  cloudGroup.getChildren().forEach(cloud => {
+    cloud.x += cloud.speed;
+    if (cloud.x > worldWidth + 100) {
+      cloud.x = -100;
+      cloud.y = Phaser.Math.Between(50, 400);
+    }
+  });
 }
 
 function hitQuestionCard(player, questionCard) {
