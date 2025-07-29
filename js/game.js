@@ -24,7 +24,7 @@ let player, cursors, questionCards, skillCards, instructions;
 let revealedCards = 0;
 let totalCards = 5;
 let cardYOffset = isMobile ? 300 : 350;
-let groundYOffset = 450;
+let groundYOffset = 150;
 let worldWidth;
 let lastDirection = "right";
 let playerState = "idle";
