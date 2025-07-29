@@ -32,7 +32,6 @@ let justJumped = false;
 let spaceKey;
 let cloudGroup;
 
-
 let cardTexts = [
   " Web Developer",
   " Python Enthusiast",
@@ -47,7 +46,6 @@ let isTyping = false;
 let fullText = '';
 let currentChar = 0;
 let dialogueActive = true;
-
 
 let leftPressed = false, rightPressed = false, jumpPressed = false;
 
@@ -87,35 +85,28 @@ function preload() {
 }
 
 function create() {
-  // Background
   const bg = this.add.image(0, 0, "background").setOrigin(0, 0);
   const scale = this.scale.height / bg.height;
   bg.setScale(scale);
-  worldWidth = bg.width * scale; // Set the global worldWidth
+  worldWidth = bg.width * scale;
 
-  // Set physics and camera bounds
   this.physics.world.setBounds(0, 0, worldWidth, this.scale.height);
   this.cameras.main.setBounds(0, 0, worldWidth, this.scale.height);
 
-  // Create static platform group
   const platforms = this.physics.add.staticGroup();
-
-  // Align the invisible ground with bottom of background image
   const groundY = bg.y + bg.height * scale - 100;
 
-  // Stretch one long invisible platform across the level
   platforms.create(0, groundY, "ground")
     .setOrigin(0, 0.5)
     .setDisplaySize(worldWidth, 50)
     .setVisible(false)
     .refreshBody();
 
-  // Player
-  player = this.physics.add.sprite(100, groundY - 100, "jump1") // Start player above the ground
-    .setOrigin(0.5, 1)     // Anchor the player's feet
+  player = this.physics.add.sprite(100, groundY - 100, "jump1")
+    .setOrigin(0.5, 1)
     .setBounce(0)
     .setCollideWorldBounds(true)
-    .setScale(2);          // Player is 22x48, so height is now 96px
+    .setScale(2);
 
   this.anims.create({
     key: "walk",
@@ -123,16 +114,24 @@ function create() {
     frameRate: 16,
     repeat: -1,
   });
-  this.anims.create({ key: "idle", frames: [{ key: "idle1" }, { key: "idle2" }], frameRate: 2, repeat: -1 });
-  this.anims.create({ key: "jump", frames: [{ key: "jump1" }, { key: "jump2" }, { key: "jump3" }], frameRate: 8 });
+
+  this.anims.create({
+    key: "idle",
+    frames: [{ key: "idle1" }, { key: "idle2" }],
+    frameRate: 2,
+    repeat: -1,
+  });
+
+  this.anims.create({
+    key: "jump",
+    frames: [{ key: "jump1" }, { key: "jump2" }, { key: "jump3" }],
+    frameRate: 12, // smoother jump
+    repeat: -1,
+  });
 
   this.anims.create({
     key: "fly",
-    frames: [
-      { key: "drag1" },
-      { key: "drag2" },
-      { key: "drag3" },
-    ],
+    frames: [{ key: "drag1" }, { key: "drag2" }, { key: "drag3" }],
     frameRate: 6,
     repeat: -1,
   });
@@ -150,11 +149,9 @@ function create() {
 
   cursors = this.input.keyboard.createCursorKeys();
   this.physics.add.collider(player, platforms);
-
   questionCards = this.physics.add.staticGroup();
   skillCards = this.add.group();
 
-  // Cards
   for (let i = 0; i < cardTexts.length; i++) {
     let x = 600 + i * 800;
     let y = this.scale.height - cardYOffset;
@@ -174,29 +171,23 @@ function create() {
     let hoverImage = this.add.image(x, y - 80, `hover-${i + 1}`).setScale(0.56).setAlpha(0).setDepth(3);
     skillCard.hoverImage = hoverImage;
   }
-// Clouds
-cloudGroup = this.add.group();
 
-const cloudTypes = ["cloud1", "cloud2"];
-
-for (let i = 0; i < 10; i++) {
-  const x = Phaser.Math.Between(0, worldWidth);
-  const y = Phaser.Math.Between(50, 400);
-  const type = Phaser.Math.RND.pick(cloudTypes); // Randomly pick a cloud type
-
-  const cloud = this.add.image(x, y, type)
-    .setScale(0.35)
-    .setAlpha(0.8)
-    .setDepth(0);
-
-  cloud.speed = Phaser.Math.FloatBetween(0.09, 0.1);
-  cloudGroup.add(cloud);
-}
-
+  cloudGroup = this.add.group();
+  const cloudTypes = ["cloud1", "cloud2"];
+  for (let i = 0; i < 10; i++) {
+    const x = Phaser.Math.Between(0, worldWidth);
+    const y = Phaser.Math.Between(50, 400);
+    const type = Phaser.Math.RND.pick(cloudTypes);
+    const cloud = this.add.image(x, y, type)
+      .setScale(0.35)
+      .setAlpha(0.8)
+      .setDepth(0);
+    cloud.speed = Phaser.Math.FloatBetween(0.09, 0.1);
+    cloudGroup.add(cloud);
+  }
 
   this.physics.add.collider(player, questionCards, hitQuestionCard, null, this);
 
-  // Instructions (Desktop only)
   if (!isMobile) {
     instructions = this.add.text(this.scale.width / 2, 50, "Use arrow keys to move and jump", {
       fontFamily: "monospace",
@@ -215,6 +206,8 @@ for (let i = 0; i < 10; i++) {
   });
 
   if (isMobile) createMobileControls.call(this);
+
+  player.anims.play("idle"); // ✅ Start on idle animation
 }
 
 function update() {
@@ -222,41 +215,37 @@ function update() {
 
   const grounded = player.body.blocked.down;
 
-  // --- JUMP LOGIC ---
   if ((cursors.up.isDown || jumpPressed) && grounded) {
     player.setVelocityY(-400);
     this.sound.play("jump");
   }
 
-  // --- MOVEMENT & ANIMATION LOGIC ---
   if (cursors.left.isDown || leftPressed) {
     player.setVelocityX(-160);
     player.setFlipX(true);
     lastDirection = "left";
-    if (grounded) {
+    if (grounded && player.anims.currentAnim?.key !== "walk") {
       player.anims.play("walk", true);
     }
   } else if (cursors.right.isDown || rightPressed) {
     player.setVelocityX(160);
     player.setFlipX(false);
     lastDirection = "right";
-    if (grounded) {
+    if (grounded && player.anims.currentAnim?.key !== "walk") {
       player.anims.play("walk", true);
     }
   } else {
     player.setVelocityX(0);
-    if (grounded) {
+    if (grounded && player.anims.currentAnim?.key !== "idle") {
       player.anims.play("idle", true);
       player.setFlipX(lastDirection === "left");
     }
   }
 
-  // --- JUMP ANIMATION ---
-  if (!grounded) {
+  if (!grounded && player.anims.currentAnim?.key !== "jump") {
     player.anims.play("jump", true);
   }
 
-  // --- CLOUD MOVEMENT ---
   cloudGroup.getChildren().forEach(cloud => {
     cloud.x += cloud.speed;
     if (cloud.x > worldWidth + 100) {
