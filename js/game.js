@@ -103,7 +103,7 @@ this.cameras.main.setBounds(0, 0, worldWidth, this.scale.height);
 const platforms = this.physics.add.staticGroup();
 const groundY = bg.y + (bg.height * bg.scaleY) - 20;
 platforms.create(worldWidth / 2, groundY, "ground")
-  .setDisplaySize(worldWidth, 125)
+  .setDisplaySize(worldWidth, 155)
   .setVisible(false)
   .refreshBody();
 
