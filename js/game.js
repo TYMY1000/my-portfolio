@@ -6,7 +6,7 @@ const config = {
     default: "arcade",
     arcade: {
       gravity: { y: 710 },
-      debug: true,
+      debug: false,
     },
   },
   scene: { preload, create, update },
@@ -24,7 +24,7 @@ let player, cursors, questionCards, skillCards, instructions;
 let revealedCards = 0;
 let totalCards = 5;
 let cardYOffset = isMobile ? 300 : 350;
-let groundYOffset = 350;
+let groundYOffset = 250;
 let worldWidth;
 let lastDirection = "right";
 let playerState = "idle";
@@ -87,35 +87,31 @@ function preload() {
 }
 
 function create() {
-  // Background
-  const bg = this.add.image(0, 0, "background").setOrigin(0, 0);
-  const scale = this.scale.height / bg.height;
-  bg.setScale(scale);
-  worldWidth = bg.width * scale; // Set the global worldWidth
-
-  // Set physics and camera bounds
   this.physics.world.setBounds(0, 0, worldWidth, this.scale.height);
-  this.cameras.main.setBounds(0, 0, worldWidth, this.scale.height);
 
-  // Create static platform group
-  const platforms = this.physics.add.staticGroup();
+// Background
+const bg = this.add.image(0, 0, "background").setOrigin(0, 0);
+const scale = this.scale.height / bg.height;
+bg.setScale(scale);
+worldWidth = bg.width * scale;
 
-  // Align the invisible ground with bottom of background image
-  const groundY = bg.y + bg.height * scale - 100;
+// Set physics and camera bounds
+this.physics.world.setBounds(0, 0, worldWidth, this.scale.height);
+this.cameras.main.setBounds(0, 0, worldWidth, this.scale.height);
 
-  // Stretch one long invisible platform across the level
-  platforms.create(0, groundY, "ground")
-    .setOrigin(0, 0.5)
-    .setDisplaySize(worldWidth, 50)
-    .setVisible(false)
-    .refreshBody();
+// Ground (aligned with background)
+const platforms = this.physics.add.staticGroup();
+const groundY = bg.y + (bg.height * bg.scaleY) - 20;
+platforms.create(worldWidth / 2, groundY, "ground")
+  .setDisplaySize(worldWidth, 115)
+  .setVisible(false)
+  .refreshBody();
 
   // Player
-  player = this.physics.add.sprite(100, groundY - 100, "jump1") // Start player above the ground
-    .setOrigin(0.5, 1)     // Anchor the player's feet
+  player = this.physics.add.sprite(100, groundY - 100, "jump1")
     .setBounce(0)
     .setCollideWorldBounds(true)
-    .setScale(2);          // Player is 22x48, so height is now 96px
+    .setScale(2);
 
   this.anims.create({
     key: "walk",
@@ -222,48 +218,55 @@ function update() {
 
   const grounded = player.body.blocked.down;
 
-  // --- JUMP LOGIC ---
-  if ((cursors.up.isDown || jumpPressed) && grounded) {
+  if ((cursors.up.isDown || jumpPressed) && grounded && !justJumped) {
+    justJumped = true;
+    player.setTexture("jump1");
+    player.anims.play("jump", true);
+    playerState = "jump";
     player.setVelocityY(-400);
     this.sound.play("jump");
   }
 
-  // --- MOVEMENT & ANIMATION LOGIC ---
+  if (!cursors.up.isDown && !jumpPressed) justJumped = false;
+
   if (cursors.left.isDown || leftPressed) {
     player.setVelocityX(-160);
+    if (playerState !== "jump") {
+      playerState = "walk";
+      player.anims.play("walk", true);
+    }
     player.setFlipX(true);
     lastDirection = "left";
-    if (grounded && player.anims.currentAnim.key !== 'walk') {
-      player.anims.play("walk", true);
-    }
   } else if (cursors.right.isDown || rightPressed) {
     player.setVelocityX(160);
-    player.setFlipX(false);
-    lastDirection = "right";
-    if (grounded && player.anims.currentAnim.key !== 'walk') {
+    if (playerState !== "jump") {
+      playerState = "walk";
       player.anims.play("walk", true);
     }
+    player.setFlipX(false);
+    lastDirection = "right";
   } else {
     player.setVelocityX(0);
-    if (grounded && player.anims.currentAnim.key !== 'idle') {
+    if (playerState !== "jump") {
+      playerState = "idle";
       player.anims.play("idle", true);
       player.setFlipX(lastDirection === "left");
     }
   }
 
-  // --- JUMP ANIMATION ---
-  if (!grounded && player.anims.currentAnim.key !== 'jump') {
-    player.anims.play("jump", true);
+  if (playerState === "jump" && grounded && !player.anims.isPlaying) {
+    playerState = "idle";
+    player.anims.play("idle", true);
+    player.setFlipX(lastDirection === "left");
   }
-
-  // --- CLOUD MOVEMENT ---
   cloudGroup.getChildren().forEach(cloud => {
-    cloud.x += cloud.speed;
-    if (cloud.x > worldWidth + 100) {
-      cloud.x = -100;
-      cloud.y = Phaser.Math.Between(50, 400);
-    }
-  });
+  cloud.x += cloud.speed;
+  if (cloud.x > worldWidth + 100) {
+    cloud.x = -100;
+    cloud.y = Phaser.Math.Between(50, 400);
+  }
+});
+
 }
 
 function hitQuestionCard(player, questionCard) {
@@ -328,37 +331,37 @@ function showDialogue() {
     color: "#ffffff",
   }).setScrollFactor(0).setDepth(11).setAlpha(0);
 
-  const advanceDialogue = () => {
+  spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+
+  this.input.keyboard.on("keydown-SPACE", () => {
     if (!dialogueActive) return;
     if (isTyping) {
       isTyping = false;
       dialogueText.setText(fullText);
-      if (pressSpaceTween) pressSpaceTween.stop();
       pressSpaceText.setAlpha(1);
-      pressSpaceTween = this.tweens.add({ targets: pressSpaceText, alpha: { from: 1, to: 0 }, duration: 500, repeat: -1, yoyo: true });
     } else {
       showNextLine.call(this);
     }
-  };
+  });
 
-  this.input.keyboard.on("keydown-SPACE", advanceDialogue);
   if (isMobile) {
-    this.input.on("pointerdown", advanceDialogue);
+    this.input.on("pointerdown", () => {
+      if (!dialogueActive) return;
+      if (isTyping) {
+        isTyping = false;
+        dialogueText.setText(fullText);
+        pressSpaceText.setAlpha(1);
+      } else {
+        showNextLine.call(this);
+      }
+    });
   }
 
   showNextLine.call(this);
 }
 
 function showNextLine() {
-  if (pressSpaceTween) {
-    pressSpaceTween.stop();
-    pressSpaceTween = null;
-  }
-
-  if (dialogueIndex >= dialogueLines.length) {
-    return endDialogue.call(this);
-  }
-
+  if (dialogueIndex >= dialogueLines.length) return endDialogue.call(this);
   fullText = dialogueLines[dialogueIndex];
   dialogueText.setText("");
   currentChar = 0;
@@ -377,7 +380,7 @@ function typeLine() {
   } else {
     isTyping = false;
     pressSpaceText.setAlpha(1);
-    pressSpaceTween = this.tweens.add({ targets: pressSpaceText, alpha: { from: 1, to: 0 }, duration: 500, repeat: -1, yoyo: true });
+    this.tweens.add({ targets: pressSpaceText, alpha: { from: 1, to: 0 }, duration: 500, repeat: -1, yoyo: true });
   }
 }
 
