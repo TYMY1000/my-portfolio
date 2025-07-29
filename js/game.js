@@ -104,8 +104,8 @@ function create() {
   const groundY = bg.y + bg.height * scale - 100;
 
   // Stretch one long invisible platform across the level
-  platforms.create(worldWidth / 2, groundY, "ground")
-    .setOrigin(0.5, 0.5)
+  platforms.create(0, groundY, "ground")
+    .setOrigin(0, 0.5)
     .setDisplaySize(worldWidth, 50)
     .setVisible(false)
     .refreshBody();
