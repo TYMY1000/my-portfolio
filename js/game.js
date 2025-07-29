@@ -221,7 +221,6 @@ function update() {
   if (dialogueActive) return;
 
   const grounded = player.body.blocked.down;
-  let newAnim = playerState; // Default to current state
 
   // --- JUMP LOGIC ---
   if ((cursors.up.isDown || jumpPressed) && grounded) {
@@ -229,34 +228,32 @@ function update() {
     this.sound.play("jump");
   }
 
-  // --- MOVEMENT LOGIC ---
+  // --- MOVEMENT & ANIMATION LOGIC ---
   if (cursors.left.isDown || leftPressed) {
     player.setVelocityX(-160);
     player.setFlipX(true);
     lastDirection = "left";
-    if (grounded) newAnim = "walk";
+    if (grounded && player.anims.currentAnim.key !== 'walk') {
+      player.anims.play("walk", true);
+    }
   } else if (cursors.right.isDown || rightPressed) {
     player.setVelocityX(160);
     player.setFlipX(false);
     lastDirection = "right";
-    if (grounded) newAnim = "walk";
+    if (grounded && player.anims.currentAnim.key !== 'walk') {
+      player.anims.play("walk", true);
+    }
   } else {
     player.setVelocityX(0);
-    if (grounded) newAnim = "idle";
+    if (grounded && player.anims.currentAnim.key !== 'idle') {
+      player.anims.play("idle", true);
+      player.setFlipX(lastDirection === "left");
+    }
   }
 
   // --- JUMP ANIMATION ---
-  if (!grounded) {
-    newAnim = "jump";
-  }
-
-  // --- ANIMATION STATE MANAGEMENT ---
-  if (newAnim !== playerState) {
-    playerState = newAnim;
-    player.anims.play(playerState, true);
-    if (playerState === 'idle') {
-        player.setFlipX(lastDirection === 'left');
-    }
+  if (!grounded && player.anims.currentAnim.key !== 'jump') {
+    player.anims.play("jump", true);
   }
 
   // --- CLOUD MOVEMENT ---
