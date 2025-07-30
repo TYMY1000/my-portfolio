@@ -6,7 +6,7 @@ const config = {
     default: "arcade",
     arcade: {
       gravity: { y: 710 },
-      debug: true,
+      debug: false,
     },
   },
   scene: { preload, create, update },
