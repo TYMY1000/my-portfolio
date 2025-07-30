@@ -6,7 +6,7 @@ const config = {
     default: "arcade",
     arcade: {
       gravity: { y: 710 },
-      debug: false,
+      debug: true,
     },
   },
   scene: { preload, create, update },
@@ -74,6 +74,7 @@ function preload() {
   this.load.image("card", "assets/card.png");
   this.load.image("ground", "assets/ground.png");
   this.load.image("rotimiPortrait", "assets/rotimi.png");
+  this.load.image("castle", "assets/castle.png");
 
   this.load.image("drag1", "assets/drag1.png");
   this.load.image("drag2", "assets/drag2.png");
@@ -95,6 +96,10 @@ const scale = this.scale.height / bg.height;
 bg.setScale(scale);
 worldWidth = bg.width * scale;
 
+const castle = this.add.image(worldWidth / 2, this.scale.height - 110, "castle")
+  .setOrigin(0.5, 1)
+  .setScale(3)
+  .setDepth(0);
 // Set physics and camera bounds
 this.physics.world.setBounds(0, 0, worldWidth, this.scale.height);
 this.cameras.main.setBounds(0, 0, worldWidth, this.scale.height);
